@@ -2,9 +2,28 @@ import time
 import socket
 import os
 import threading
+import pickle
 
 host = '127.0.0.1'
 port = 8080
+
+class messageC:
+  def __init__(self, count, room):
+    self.count = count
+    self.room = room
+    filename = str(os.path.join(room, str(count) + ".txt"))
+    print(filename)
+    try:
+      with open(filename, "r+") as file:
+        data = file.read()
+        lines = data.split('\n')
+        self.time = str(lines[0])
+        self.sender = str(lines[1])
+        self.message = ""
+        for i in range(2, len(lines)-1):
+          self.message += lines[i] + '\n'
+    except FileNotFoundError:
+      print("File not found: " + filename)  
 
 def send_message(conn, message):
     # Send the length of the message first (4 bytes)
@@ -31,23 +50,25 @@ def receive_message(conn):
           break  # Connection closed or error
       data += chunk
 
-  return data.decode('utf-8')
+  return data
 
 def handle_client(conn):
   print("Connected by: " + str(addr))
   mode = conn.recv(1)
   if mode == b"W":
     while True:
-      data = receive_message(conn)
-      if not data:
-          break  # Client disconnected
+      rawData = receive_message(conn)
+      if not rawData:
+        print("error reciving data")
+        break  # Client disconnected
+      data = rawData.decode()
       print("Received message: " + data)
       #add message handing here
       lines = data.split('\n')
       room = lines[0]
       sender = lines[1]
       message = ""
-      for i in range(2, len(lines)):
+      for i in range(2, len(lines)-1):
         message += lines[i] + '\n'
       try:
         with open(room + "\meta.txt", "r+") as file:
@@ -67,8 +88,12 @@ def handle_client(conn):
   elif mode == b"R":
     while True:
       data = receive_message(conn)
+      if data is None:
+        print("Client returned none")
+        break
       if not data:
           break  # Client disconnected
+      data = data.decode()
       lines = data.split('\n')
       room = lines[0]
       n = int(lines[1])
@@ -78,26 +103,10 @@ def handle_client(conn):
         i += 1
       for x in range(i- n, i):
         if x > 0:
-          messages.append(message(x, room))
-      send_message(conn, messages)
+          tmp = messageC(x, room)
+          messages.append(tmp)
+      send_message(conn, pickle.dumps(messages))
   conn.close()
-
-class message:
-  def __init__(self, count, room):
-    self.count = count
-    self.room = room
-    filename = str(room + "\\" + count + ".txt")
-    print(filename)
-    try:
-      with open(filename, "r+") as file:
-        lines = data.split('\n')
-        self.time = str(lines[0])
-        self.sender = str(lines[1])
-        self.message = ""
-        for i in range(2, len(lines)):
-          self.message += lines[i] + '\n'
-    except FileNotFoundError:
-      print("File not found: " + filename)  
 
 if __name__ == "__main__":
   mode = input("Enter mode: ")
@@ -107,24 +116,24 @@ if __name__ == "__main__":
     room = input("Room: ")
 
     try:
-      with open(room + "\meta.txt", "r+") as file:
+      with open(os.path.join(room, meta.txt), "r+") as file:
         count = int(file.read())
 
     except FileNotFoundError:
-      with open(room + "\meta.txt", "w+") as file:
+      with open(os.path.join(room, meta.txt), "w+") as file:
         file.write("0")
         count = 0
 
-    with open(room + "\meta.txt", "w+") as file:
+    with open(os.path.join(room, meta.txt), "w+") as file:
       file.write(str(count + 1))
 
-    with open(room + "\\" + str(count) + ".txt", "x") as file:
+    with open(os.path.join(room, str(count) + ".txt"), "x") as file:
       file.write(sender + "\n" + message)
 
   elif mode == "R":
     room = input("Room: ")
     count = input("Count: ")
-    content = message(count, room)
+    content = messageC(count, room)
     print("Sender: " + str(content.sender))
     print("Message: " + str(content.message))
 
