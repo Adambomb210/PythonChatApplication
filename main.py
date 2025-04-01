@@ -4,7 +4,7 @@ import os
 import threading
 import pickle
 
-host = '34.220.181.17'
+host = '0.0.0.0'
 port = 8080
 
 class messageC:
