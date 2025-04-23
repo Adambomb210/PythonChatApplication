@@ -74,7 +74,7 @@ def handle_client(conn):
       room = lines[0]
       sender = lines[1]
       message = ""
-      for i in range(2, len(lines) - 1):
+      for i in range(2, len(lines)):
         message += lines[i] + '\n'
       try:
         with open(os.path.join(room, "meta.txt"), "r+") as file:
@@ -113,6 +113,8 @@ def handle_client(conn):
           tmp = messageC(x, room)
           messages.append(tmp)
       send_message(conn, pickle.dumps(messages))
+  else:
+    print("Invalid mode received")
   conn.close()
 
 
