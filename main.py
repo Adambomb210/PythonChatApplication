@@ -101,7 +101,9 @@ def handle_client(conn):
 
       except FileNotFoundError:
         count = 0
-      send_message(conn, count)
+        conn.close()
+      data = str(count).encode()
+      send_message(conn, data)
       data = receive_message(conn)
       if data is None:
         print("Client returned none")
@@ -115,10 +117,11 @@ def handle_client(conn):
       for file in os.scandir(str(room)):
         i += 1
       for x in range(i - n, i):
-        if x > 0:
+        if x >= 0:
           tmp = messageC(x, room)
           messages.append(tmp)
       send_message(conn, pickle.dumps(messages))
+      break
   else:
     print("Invalid mode received")
   conn.close()

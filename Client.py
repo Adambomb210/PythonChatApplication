@@ -30,9 +30,12 @@ if mode == "R":
     num = int(rawData.decode())
     if num == 0:
         print("No messages in room")
+        exit(1)
     elif num >= 1:
         print("There are " + str(num) + " messages in the room")
-    n = int(input("How many messages would you like to receive: "))
+    n = 0
+    while n > num or n <= 0 :
+        n = int(input("How many messages would you like to receive: "))
     send_message(client_socket, str(n).encode())
     messages = pickle.loads(receive_message(client_socket))
     for x in messages:
