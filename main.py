@@ -94,6 +94,14 @@ def handle_client(conn):
             str(time.ctime(time.time())) + "\n" + sender + "\n" + message)
   elif mode == b"R":
     while True:
+      room = receive_message(conn).decode()
+      try:
+        with open(os.path.join(room, "meta.txt"), "r+") as file:
+          count = int(file.read())
+
+      except FileNotFoundError:
+        count = 0
+      send_message(conn, count)
       data = receive_message(conn)
       if data is None:
         print("Client returned none")
@@ -101,9 +109,7 @@ def handle_client(conn):
       if not data:
         break  # Client disconnected
       data = data.decode()
-      lines = data.split('\n')
-      room = lines[0]
-      n = int(lines[1])
+      n = int(data)
       i = -1
       messages = []
       for file in os.scandir(str(room)):

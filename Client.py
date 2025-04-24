@@ -2,7 +2,8 @@ import socket
 import pickle
 from main import *
 
-server = "34.220.181.17"
+#server = "34.220.181.17"
+server = "localhost"
 port = 8080
 
 # Client setup
@@ -22,9 +23,17 @@ if mode == "W":
     send_message(client_socket, data.encode())
 if mode == "R":
     client_socket.send(b"R")
+    #sending room
+    send_message(client_socket, room.encode())
+    #reciving num of messages
+    rawData = receive_message(client_socket)
+    num = int(rawData.decode())
+    if num == 0:
+        print("No messages in room")
+    elif num >= 1:
+        print("There are " + str(num) + " messages in the room")
     n = int(input("How many messages would you like to receive: "))
-    data = room + "\n" + str(n)
-    send_message(client_socket, data.encode())
+    send_message(client_socket, str(n).encode())
     messages = pickle.loads(receive_message(client_socket))
     for x in messages:
         print("Time: " + x.time)
