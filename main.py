@@ -100,8 +100,10 @@ def handle_client(conn):
           count = int(file.read())
 
       except FileNotFoundError:
-        count = 0
-        conn.close()
+        os.makedirs(room, exist_ok=True)
+        with open(os.path.join(room, "meta.txt"), "w+") as file:
+          file.write("0")
+          count = 0
       data = str(count).encode()
       send_message(conn, data)
       data = receive_message(conn)
@@ -139,6 +141,7 @@ if __name__ == "__main__":
         count = int(file.read())
 
     except FileNotFoundError:
+      os.makedirs(room, exist_ok=True)
       with open(os.path.join(room, meta.txt), "w+") as file:
         file.write("0")
         count = 0
