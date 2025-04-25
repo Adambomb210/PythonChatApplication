@@ -130,44 +130,12 @@ def handle_client(conn):
 
 
 if __name__ == "__main__":
-  mode = input("Enter mode: ")
-  if mode == "W":
-    sender = input("Username: ")
-    message = input("Message: ")
-    room = input("Room: ")
-
-    try:
-      with open(os.path.join(room, meta.txt), "r+") as file:
-        count = int(file.read())
-
-    except FileNotFoundError:
-      os.makedirs(room, exist_ok=True)
-      with open(os.path.join(room, meta.txt), "w+") as file:
-        file.write("0")
-        count = 0
-
-    with open(os.path.join(room, meta.txt), "w+") as file:
-      file.write(str(count + 1))
-
-    with open(os.path.join(room, str(count) + ".txt"), "x") as file:
-      file.write(sender + "\n" + message)
-
-  elif mode == "R":
-    room = input("Room: ")
-    count = input("Count: ")
-    content = messageC(count, room)
-    print("Sender: " + str(content.sender))
-    print("Message: " + str(content.message))
-
-  elif mode == "S":
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind((host, port))
-    server_socket.listen(5)
-    while True:
-      conn, addr = server_socket.accept()
-      SThread = threading.Thread(target=handle_client,
-                                 args=(conn, ),
-                                 daemon=True)
-      SThread.start()
-  else:
-    print("Invalid input.")
+  server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+  server_socket.bind((host, port))
+  server_socket.listen(5)
+  while True:
+    conn, addr = server_socket.accept()
+    SThread = threading.Thread(target=handle_client,
+                               args=(conn, ),
+                               daemon=True)
+    SThread.start()
