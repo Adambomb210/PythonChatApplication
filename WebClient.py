@@ -3,8 +3,7 @@ import pickle
 from main import *
 from nicegui import ui
 
-#server = "34.220.181.17"
-server = "localhost"
+server = "34.220.181.17"
 port = 8080
 
 def send_chat(room, username, message):

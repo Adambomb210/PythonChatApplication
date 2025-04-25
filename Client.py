@@ -2,8 +2,7 @@ import socket
 import pickle
 from main import *
 
-#server = "34.220.181.17"
-server = "localhost"
+server = "34.220.181.17"
 port = 8080
 
 # Client setup
