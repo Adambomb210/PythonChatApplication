@@ -86,4 +86,4 @@ def chatWindow(room: str, username: str):
             ui.navigate.to(f'/{room}/{username}')
         ui.button("Send", on_click=lambda: handle_submit())
 
-ui.run(port= 80, dark= True)
+ui.run(port= 8081, dark= True, title= "PythonChatApp")
